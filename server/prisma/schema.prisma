@@ -1,0 +1,130 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+generator typegraphql {
+  provider = "typegraphql-prisma"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model ContactInformation {
+  id            String    @id @default(cuid()) @db.Char(30)
+  createdAt     DateTime  @default(now()) @db.DateTime(0)
+  updatedAt     DateTime?
+  countryAr     String?   @db.MediumText
+  countryEn     String?   @db.MediumText
+  cityAr        String?   @db.MediumText
+  cityEn        String?   @db.MediumText
+  ownerNameAr   String?   @db.MediumText
+  ownerNameEn   String?   @db.MediumText
+  addressInfoAr String?   @db.MediumText
+  addressInfoEn String?   @db.MediumText
+  phone         String?   @db.MediumText
+  email         String?   @db.VarChar(255)
+  horseId       String?   @db.Char(30)
+  Horses        Horses?   @relation(fields: [horseId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "ContactInformation_ibfk_1")
+
+  @@index([horseId], map: "horseId")
+}
+
+model Files {
+  id                String    @id @default(cuid()) @db.Char(30)
+  createdAt         DateTime  @default(now()) @db.DateTime(0)
+  updatedAt         DateTime?
+  fileName          String?   @db.MediumText
+  fileType          String?   @db.MediumText
+  main              Boolean?
+  showInGalary      Boolean?  @default(false)
+  isMainSliderImage Boolean?  @default(false)
+  horseId           String?   @db.Char(30)
+  newsId            String?   @db.Char(30)
+  storyId           String?   @db.Char(30)
+  Horses            Horses?   @relation(fields: [horseId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "Files_ibfk_1")
+  News              News?     @relation(fields: [newsId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "Files_ibfk_2")
+  Stories           Stories?  @relation(fields: [storyId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "Files_ibfk_3")
+
+  @@index([horseId], map: "horseId")
+  @@index([newsId], map: "newsId")
+  @@index([storyId], map: "storyId")
+}
+
+model Horses {
+  id                 String               @id @default(cuid()) @db.Char(30)
+  createdAt          DateTime             @default(now()) @db.DateTime(0)
+  updatedAt          DateTime?
+  isActive           Boolean?             @default(false)
+  nameAr             String?              @db.MediumText
+  nameEn             String?              @db.MediumText
+  dateOfBirth        DateTime?            @db.Date
+  gender             Horses_gender?
+  horseBreeds        String?              @db.MediumText
+  bioAr              String?              @db.MediumText
+  bioEn              String?              @db.MediumText
+  semenInformationAr String?              @db.MediumText
+  semenInformationEn String?              @db.MediumText
+  colorAr            String?              @db.MediumText
+  colorEn            String?              @db.MediumText
+  mating             Boolean?             @default(false)
+  fatherId           String?              @db.Char(30)
+  motherId           String?              @db.Char(30)
+  ContactInformation ContactInformation[]
+  Media              Files[]
+  HorseFamilyTree    HorseFamilyTree?
+  ConnectFather      Horses?              @relation("Horses_fatherIdToHorses", fields: [fatherId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "Horses_ibfk_1")
+  Father             Horses[]             @relation("Horses_fatherIdToHorses")
+  ConnectMother      Horses?              @relation("Horses_motherIdToHorses", fields: [motherId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "Horses_ibfk_2")
+  Mother             Horses[]             @relation("Horses_motherIdToHorses")
+
+  @@index([fatherId], map: "fatherId")
+  @@index([motherId], map: "motherId")
+}
+
+model News {
+  id            String    @id @default(cuid()) @db.Char(30)
+  createdAt     DateTime  @default(now()) @db.DateTime(0)
+  updatedAt     DateTime?
+  titleAr       String?   @db.MediumText
+  titleEn       String?   @db.MediumText
+  descriptionAr String?   @db.MediumText
+  descriptionEn String?   @db.MediumText
+  isActive      Boolean?  @default(false)
+  Media         Files[]
+}
+
+model HorseFamilyTree {
+  id                   String           @id @default(cuid()) @db.Char(30)
+  fatherAr             String?          @db.MediumText
+  motherAr             String?          @db.MediumText
+  fatherEn             String?          @db.MediumText
+  motherEn             String?          @db.MediumText
+  frId                 String?          @unique(map: "frId_UNIQUE") @db.Char(30)
+  moId                 String?          @unique(map: "moId_UNIQUE") @db.Char(30)
+  horseId              String?          @unique(map: "horseId_UNIQUE") @db.Char(30)
+  ConnectFatherParents HorseFamilyTree? @relation("ConnectFatherParents", fields: [frId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "HorseFamilyTree2_ibfk_1")
+  FatherParents        HorseFamilyTree? @relation("ConnectFatherParents")
+  ConnectMotherParents HorseFamilyTree? @relation("ConnectMotherParents", fields: [moId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "HorseFamilyTree2_ibfk_2")
+  MotherParents        HorseFamilyTree? @relation("ConnectMotherParents")
+  Horses               Horses?          @relation(fields: [horseId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "HorseFamilyTree2_ibfk_3")
+
+  @@index([frId], map: "frId")
+  @@index([horseId], map: "horseId")
+  @@index([moId], map: "moId")
+}
+
+model Stories {
+  id        String    @id @db.Char(30) @default(cuid())
+  title     String?   @db.MediumText
+  paragraph String?   @db.MediumText
+  createdAt DateTime  @default(now()) @db.DateTime(0)
+  updatedAt DateTime?
+  Media     Files[]
+}
+
+enum Horses_gender {
+  MALE
+  FEMALE
+}

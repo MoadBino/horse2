@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+      "target": "ES2018",
+      "module": "CommonJS",
+      "lib": [
+          "es2020",
+          "esnext.asynciterable"
+      ],
+      "experimentalDecorators": true,
+      "emitDecoratorMetadata": true,
+      "esModuleInterop": true,
+      "outDir": "dist",
+      "baseUrl": "src",
+      "sourceMap": true,
+      "skipLibCheck": true,
+      "forceConsistentCasingInFileNames": true,
+      "moduleResolution": "node",
+      "removeComments": true,
+  },
+  "include": [
+      "src/**/*.ts",
+      "prisma/**/*.ts",
+  ],
+  "exclude": [
+      "node_modules/**/*",
+      "_warmup/**/*",
+      ".vscode/**/*",
+      ".husky/**/*",
+      "dist/**/*"
+  ],
+}
